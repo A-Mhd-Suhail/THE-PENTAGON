@@ -1,0 +1,377 @@
+/* ==========================================================
+   THE HEXAGON - student portal logic (dashboard + projects)
+   Data is kept in this browser (localStorage) until you connect
+   a backend. Search for "BACKEND" to find where to plug it in.
+   ========================================================== */
+(function () {
+  'use strict';
+
+  var KEY = 'hx_student_v1', SESS = 'hx_session';
+
+  /* ---------- must be logged in ---------- */
+  try { if (!localStorage.getItem(SESS)) { location.replace('login.html?role=student'); return; } } catch (e) {}
+
+  /* ---------- data (BACKEND: replace load() / save() with API calls) ---------- */
+  function blank() {
+    return { profile: null, about: {}, marks: [], skills: [], ach: [], courses: [], done: [], days: [], events: [], goals: [], projects: [] };
+  }
+  function load() {
+    try { var d = JSON.parse(localStorage.getItem(KEY)); if (d) return Object.assign(blank(), d); } catch (e) {}
+    return blank();
+  }
+  var D = load();
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(D)); }
+    catch (e) { toast('Browser storage is full. Remove an image or an old post.'); }
+  }
+
+  /* ---------- helpers ---------- */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function p2(n) { return n < 10 ? '0' + n : '' + n; }
+  function ymd(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function today() { return ymd(new Date()); }
+  function nice(s) { if (!s) return ''; var d = new Date(s + 'T00:00:00'); return isNaN(d) ? s : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function list(s) { return String(s || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean); }
+  function el(f, n) { return f.elements[n]; }
+  function safeUrl(u) { if (!u) return ''; try { var x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch (e) { return ''; } }
+  var tt;
+  function toast(m) { var t = $('#toast'); if (!t) return; t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(function () { t.classList.remove('on'); }, 2600); }
+  function open(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  function close(d) { if (d.close) d.close(); else d.removeAttribute('open'); }
+
+  // picture -> centred crop -> small JPEG so it fits in storage
+  function pic(file, w, h, cb) {
+    var r = new FileReader();
+    r.onload = function () {
+      var i = new Image();
+      i.onload = function () {
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var s = Math.max(w / i.width, h / i.height), iw = w / s, ih = h / s;
+        c.getContext('2d').drawImage(i, (i.width - iw) / 2, (i.height - ih) / 2, iw, ih, 0, 0, w, h);
+        cb(c.toDataURL('image/jpeg', 0.8));
+      };
+      i.onerror = function () { toast('That file could not be read as an image.'); };
+      i.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
+
+  function addEvent(t) { D.events.push({ d: today(), t: t }); if (D.events.length > 100) D.events.shift(); }
+  function logDay() { var t = today(); if (D.days.indexOf(t) < 0) D.days.push(t); }
+  function streak() {
+    var s = {}, n = 0, d = new Date();
+    D.days.forEach(function (x) { s[x] = 1; });
+    if (!s[ymd(d)]) d.setDate(d.getDate() - 1);
+    while (s[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function average() {
+    if (!D.marks.length) return null;
+    return D.marks.reduce(function (a, m) { return a + m.marks; }, 0) / D.marks.length;
+  }
+
+  var TYPES = {
+    article: 'Article / Write-up', image: 'Image / Photo', video: 'Video', link: 'Website / Link', code: 'Code / GitHub',
+    doc: 'Document / PDF', slides: 'Presentation', design: 'Design / Poster', audio: 'Audio / Music',
+    research: 'Research paper', event: 'Event / Competition', cert: 'Certificate', other: 'Other'
+  };
+
+  /* ---------- shared: top bar + dialogs ---------- */
+  $('#logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    try { localStorage.removeItem(SESS); } catch (x) {}
+    location.href = 'index.html';
+  });
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest('[data-close]');
+    if (c) close(c.closest('dialog'));
+  });
+
+  /* ---------- post card (used on both pages) ---------- */
+  function card(p, full) {
+    var u = safeUrl(p.link);
+    return '<article class="post" data-id="' + p.id + '">' +
+      '<div class="cv"' + (p.img ? ' style="background-image:url(\'' + p.img + '\')"' : '') + '>' + (p.img ? '' : esc((TYPES[p.type] || 'Post').toUpperCase())) + '</div>' +
+      '<div class="bd"><span class="badge">' + esc(TYPES[p.type] || 'Post') + '</span><h4>' + esc(p.title) + '</h4><p>' + esc(p.desc) + '</p>' +
+      (p.tags && p.tags.length ? '<div class="chips">' + p.tags.map(function (t) { return '<span class="chip">' + esc(t) + '</span>'; }).join('') + '</div>' : '') +
+      '<div class="ft"><span>' + esc(nice(p.date)) + '</span><span>' +
+      (u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">Open</a> ' : '') +
+      (full ? '<button class="x" data-act="more" title="Read more">&#8645;</button><button class="x" data-act="del-post" data-id="' + p.id + '" title="Delete">&#10005;</button>' : '') +
+      '</span></div></div></article>';
+  }
+  function newestFirst(a) { return a.slice().sort(function (x, y) { return (y.created || 0) - (x.created || 0); }); }
+
+  /* ==========================================================
+     DASHBOARD
+     ========================================================== */
+  function dashboard() {
+    var dlgP = $('#dlg-profile'), fP = $('#f-profile'), dlgA = $('#dlg-about'), fA = $('#f-about'), tmp = {};
+
+    // grade options
+    for (var g = 1; g <= 12; g++) { var o = document.createElement('option'); o.textContent = 'Grade ' + g; el(fP, 'grade').appendChild(o); }
+    ['College / Undergraduate'].forEach(function (t) { var o = document.createElement('option'); o.textContent = t; el(fP, 'grade').appendChild(o); });
+
+    /* ----- render ----- */
+    function renderProfile() {
+      var p = D.profile;
+      $('#banner').style.backgroundImage = p && p.banner ? 'url("' + p.banner + '")' : '';
+      var av = $('#avatar');
+      av.style.backgroundImage = p && p.avatar ? 'url("' + p.avatar + '")' : '';
+      av.textContent = p && p.avatar ? '' : (p && p.name ? p.name.charAt(0).toUpperCase() : '?');
+      $('#p-name').textContent = p ? p.name : 'Complete your profile';
+      $('#p-grade').textContent = p ? p.grade : 'Academic year';
+      $('#p-school').textContent = p ? p.school : 'School name';
+      $('#p-bio').textContent = p ? p.bio : 'Add your banner, picture, name, grade, school and bio to get started.';
+
+      var a = D.about, aboutFilled = ['interests', 'career', 'learnGoals', 'languages', 'strengths', 'coLearner'].filter(function (k) { return a[k]; }).length;
+      var score = (p ? 40 : 0) + Math.round(aboutFilled / 6 * 20) + (D.marks.length ? 10 : 0) + (D.skills.length ? 10 : 0) + (D.ach.length ? 10 : 0) + (D.courses.length + D.done.length ? 10 : 0);
+      $('#comp-bar').style.width = score + '%'; $('#comp-txt').textContent = score + '%';
+
+      var avg = average();
+      var pa = $('#p-avg'); pa.hidden = avg == null; if (avg != null) pa.textContent = 'Average marks: ' + avg.toFixed(1) + '%';
+      $('#k-avg').textContent = avg == null ? '--' : avg.toFixed(1) + '%';
+      $('#k-streak').textContent = streak() + (streak() === 1 ? ' day' : ' days');
+      $('#k-done').textContent = D.done.length;
+      $('#k-proj').textContent = D.projects.length;
+    }
+
+    function renderAbout() {
+      var a = D.about, items = [
+        ['Interests', 'interests', 1], ['Career goals', 'career'], ['Learning goals', 'learnGoals'],
+        ['Languages known', 'languages', 1], ['Personal strengths', 'strengths', 1], ['Preferred co-learner', 'coLearner']
+      ];
+      $('#about-grid').innerHTML = items.map(function (it) {
+        var v = a[it[1]], body;
+        if (!v) body = '<p class="muted">Not added yet</p>';
+        else if (it[2]) body = '<div class="chips">' + list(v).map(function (x) { return '<span class="chip">' + esc(x) + '</span>'; }).join('') + '</div>';
+        else body = '<p>' + esc(v) + '</p>';
+        return '<div class="about"><h3>' + it[0] + '</h3>' + body + '</div>';
+      }).join('');
+    }
+
+    function renderPortfolio() {
+      var ps = newestFirst(D.projects).slice(0, 3);
+      $('#portfolio-grid').innerHTML = ps.length ? ps.map(function (p) { return card(p, false); }).join('')
+        : '<div class="empty" style="grid-column:1/-1">No posts yet. Add your first project on the Projects page.</div>';
+    }
+
+    function renderMarks() {
+      var avg = average();
+      $('#avg-big').textContent = avg == null ? '--' : avg.toFixed(1) + '%';
+      $('#avg-n').textContent = D.marks.length;
+      $('#marks').innerHTML = D.marks.length ? D.marks.map(function (m) {
+        return '<div class="row"><span class="nm">' + esc(m.subject) + '</span><div class="bar"><i style="width:' + m.marks + '%"></i></div><b>' + m.marks + '%</b>' +
+          '<button class="x" data-act="del-mark" data-id="' + m.id + '" title="Remove">&#10005;</button></div>';
+      }).join('') : '<div class="empty">Add a subject to see your average here.</div>';
+    }
+
+    function renderSkills() {
+      ['Academic', 'Physical'].forEach(function (k) {
+        var s = D.skills.filter(function (x) { return x.kind === k; });
+        $('#sk-' + k).innerHTML = s.length ? s.map(function (x) {
+          return '<span class="chip lvl">' + esc(x.name) + ' <small>' + esc(x.level) + '</small><button class="x" data-act="del-skill" data-id="' + x.id + '" title="Remove">&#10005;</button></span>';
+        }).join('') : '<span class="muted sm">None added yet</span>';
+      });
+    }
+
+    function renderAch() {
+      var a = D.ach.slice().sort(function (x, y) { return (y.date || '').localeCompare(x.date || ''); });
+      $('#ach-list').innerHTML = a.length ? a.map(function (x) {
+        return '<div class="ach"><div class="ic">&#9733;</div><div><h4>' + esc(x.title) + '</h4>' + (x.desc ? '<p>' + esc(x.desc) + '</p>' : '') + '</div>' +
+          '<span class="d">' + esc(nice(x.date)) + '</span><button class="x" data-act="del-ach" data-id="' + x.id + '" title="Remove">&#10005;</button></div>';
+      }).join('') : '<div class="empty">Add your first achievement.</div>';
+    }
+
+    function renderLearning() {
+      $('#courses').innerHTML = D.courses.length ? D.courses.map(function (c) {
+        return '<div class="course"><div class="t"><span>' + esc(c.name) + (c.source ? ' <small>· ' + esc(c.source) + '</small>' : '') + '</span>' +
+          '<button class="x" data-act="del-course" data-id="' + c.id + '" title="Remove">&#10005;</button></div>' +
+          '<div class="pr"><input type="range" min="0" max="100" step="5" value="' + c.progress + '" data-act="progress" data-id="' + c.id + '" aria-label="Progress for ' + esc(c.name) + '"><b>' + c.progress + '%</b></div>' +
+          (c.progress >= 100 ? '<button class="btn sm" style="margin-top:10px" data-act="complete" data-id="' + c.id + '">Mark as completed</button>' : '') + '</div>';
+      }).join('') : '<div class="empty">What are you learning right now? Add a course above.</div>';
+
+      $('#done').innerHTML = D.done.length ? D.done.slice().reverse().map(function (c) {
+        return '<div class="done"><span>' + esc(c.name) + (c.source ? ' <small>· ' + esc(c.source) + '</small>' : '') + '</span><small>' + esc(nice(c.date)) + '</small></div>';
+      }).join('') : '<div class="empty">Completed courses will appear here.</div>';
+
+      $('#streak-n').textContent = streak();
+      var on = {}; D.days.forEach(function (x) { on[x] = 1; });
+      var h = '', d = new Date(); d.setDate(d.getDate() - 27);
+      for (var i = 0; i < 28; i++) { h += '<i class="' + (on[ymd(d)] ? 'on' : '') + '" title="' + ymd(d) + '"></i>'; d.setDate(d.getDate() + 1); }
+      $('#heat').innerHTML = h;
+      $('#log-today').disabled = !!on[today()];
+      $('#log-today').textContent = on[today()] ? 'Logged for today' : "Log today's learning";
+
+      var gs = D.goals.slice().sort(function (a, b) { return (a.done - b.done) || (a.date || '9').localeCompare(b.date || '9'); });
+      $('#goals').innerHTML = gs.length ? gs.map(function (g) {
+        return '<div class="goal' + (g.done ? ' is-done' : '') + '"><input type="checkbox" data-act="goal" data-id="' + g.id + '"' + (g.done ? ' checked' : '') + '><span>' + esc(g.text) + '</span>' +
+          (g.date ? '<small>' + esc(nice(g.date)) + '</small>' : '') + '<button class="x" data-act="del-goal" data-id="' + g.id + '" title="Remove">&#10005;</button></div>';
+      }).join('') : '<div class="empty">Set a goal you want to reach next.</div>';
+
+      var ev = D.events.slice(-12).reverse();
+      $('#timeline').innerHTML = ev.length ? ev.map(function (x) { return '<li>' + esc(x.t) + '<small>' + esc(nice(x.d)) + '</small></li>'; }).join('')
+        : '<li>Your learning journey starts here.<small>Add a course or goal to begin</small></li>';
+    }
+
+    function all() { renderProfile(); renderAbout(); renderPortfolio(); renderMarks(); renderSkills(); renderAch(); renderLearning(); }
+
+    /* ----- profile dialog (required) ----- */
+    function openProfile() {
+      var p = D.profile || {}; tmp = {};
+      ['name', 'grade', 'school', 'bio'].forEach(function (k) { el(fP, k).value = p[k] || ''; });
+      el(fP, 'banner').value = ''; el(fP, 'avatar').value = '';
+      el(fP, 'banner').required = !p.banner; el(fP, 'avatar').required = !p.avatar;
+      $('#pf-cancel').hidden = !D.profile; $('#pf-err').textContent = '';
+      open(dlgP);
+    }
+    el(fP, 'banner').addEventListener('change', function () { var f = this.files[0]; tmp.banner = null; if (f) pic(f, 1200, 300, function (u) { tmp.banner = u; }); });
+    el(fP, 'avatar').addEventListener('change', function () { var f = this.files[0]; tmp.avatar = null; if (f) pic(f, 320, 320, function (u) { tmp.avatar = u; }); });
+    dlgP.addEventListener('cancel', function (e) { if (!D.profile) e.preventDefault(); });   // cannot skip on first visit
+    $('#pf-cancel').addEventListener('click', function () { close(dlgP); });
+    fP.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!fP.checkValidity()) { fP.reportValidity(); return; }
+      var old = D.profile || {};
+      if ((el(fP, 'banner').files.length && !tmp.banner) || (el(fP, 'avatar').files.length && !tmp.avatar)) { $('#pf-err').textContent = 'Your image is still loading. Please try again.'; return; }
+      var first = !D.profile;
+      D.profile = {
+        banner: tmp.banner || old.banner, avatar: tmp.avatar || old.avatar,
+        name: el(fP, 'name').value.trim(), grade: el(fP, 'grade').value, school: el(fP, 'school').value.trim(), bio: el(fP, 'bio').value.trim()
+      };
+      addEvent(first ? 'Created my student profile' : 'Updated my profile');
+      save(); close(dlgP); all(); toast('Profile saved');
+    });
+    $('#edit-profile').addEventListener('click', openProfile);
+
+    /* ----- about dialog ----- */
+    $('#edit-about').addEventListener('click', function () {
+      ['interests', 'career', 'learnGoals', 'languages', 'strengths', 'coLearner'].forEach(function (k) { el(fA, k).value = D.about[k] || ''; });
+      open(dlgA);
+    });
+    fA.addEventListener('submit', function (e) {
+      e.preventDefault();
+      ['interests', 'career', 'learnGoals', 'languages', 'strengths', 'coLearner'].forEach(function (k) { D.about[k] = el(fA, k).value.trim(); });
+      addEvent('Updated my About me'); save(); close(dlgA); all(); toast('About me saved');
+    });
+
+    /* ----- add forms ----- */
+    function form(id, fn) {
+      var f = $(id);
+      f.addEventListener('submit', function (e) { e.preventDefault(); if (!f.checkValidity()) { f.reportValidity(); return; } fn(f); f.reset(); save(); all(); });
+    }
+    form('#mark-form', function (f) { D.marks.push({ id: uid(), subject: el(f, 'subject').value.trim(), marks: Math.min(100, Math.max(0, +el(f, 'marks').value)) }); addEvent('Added marks for ' + el(f, 'subject').value.trim()); });
+    form('#skill-form', function (f) { D.skills.push({ id: uid(), name: el(f, 'name').value.trim(), kind: el(f, 'kind').value, level: el(f, 'level').value }); addEvent('Added skill: ' + el(f, 'name').value.trim()); });
+    form('#ach-form', function (f) { D.ach.push({ id: uid(), title: el(f, 'title').value.trim(), date: el(f, 'date').value, desc: el(f, 'desc').value.trim() }); addEvent('Achievement: ' + el(f, 'title').value.trim()); });
+    form('#course-form', function (f) { D.courses.push({ id: uid(), name: el(f, 'name').value.trim(), source: el(f, 'source').value.trim(), progress: 0 }); addEvent('Started learning ' + el(f, 'name').value.trim()); logDay(); });
+    form('#goal-form', function (f) { D.goals.push({ id: uid(), text: el(f, 'text').value.trim(), date: el(f, 'date').value, done: false }); addEvent('New goal: ' + el(f, 'text').value.trim()); });
+
+    $('#log-today').addEventListener('click', function () { logDay(); addEvent('Logged a day of learning'); save(); all(); toast('Streak updated'); });
+
+    /* ----- clicks on list items ----- */
+    function find(a, id) { return a.filter(function (x) { return x.id === id; })[0]; }
+    function drop(a, id) { return a.filter(function (x) { return x.id !== id; }); }
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-act]'); if (!b) return;
+      var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+      if (act === 'del-mark') D.marks = drop(D.marks, id);
+      else if (act === 'del-skill') D.skills = drop(D.skills, id);
+      else if (act === 'del-ach') D.ach = drop(D.ach, id);
+      else if (act === 'del-course') D.courses = drop(D.courses, id);
+      else if (act === 'del-goal') D.goals = drop(D.goals, id);
+      else if (act === 'complete') {
+        var c = find(D.courses, id); if (!c) return;
+        D.done.push({ id: c.id, name: c.name, source: c.source, date: today() }); D.courses = drop(D.courses, id);
+        addEvent('Completed ' + c.name); logDay(); toast('Course completed. Well done!');
+      } else return;
+      save(); all();
+    });
+    document.addEventListener('input', function (e) {
+      if (e.target.getAttribute('data-act') === 'progress') e.target.parentNode.querySelector('b').textContent = e.target.value + '%';
+    });
+    document.addEventListener('change', function (e) {
+      var act = e.target.getAttribute('data-act'), id = e.target.getAttribute('data-id');
+      if (act === 'progress') {
+        var c = find(D.courses, id); if (!c) return;
+        c.progress = +e.target.value; addEvent(c.name + ' is now ' + c.progress + '% complete'); logDay(); save(); all();
+      } else if (act === 'goal') {
+        var g = find(D.goals, id); if (!g) return;
+        g.done = e.target.checked; if (g.done) addEvent('Reached goal: ' + g.text); save(); all();
+      }
+    });
+
+    all();
+    if (!D.profile) openProfile();      // first visit: profile is mandatory
+  }
+
+  /* ==========================================================
+     PROJECTS PAGE
+     ========================================================== */
+  function projects() {
+    var dlg = $('#dlg-post'), f = $('#f-post'), sel = $('#post-type'), filter = 'all', q = '';
+    var NEED = { video: 'link', link: 'link', code: 'link', image: 'img' };
+    var HINT = {
+      video: 'Upload your video to YouTube or Google Drive and paste the link.', doc: 'Upload your file to Google Drive and paste the share link.',
+      slides: 'Paste a link to your slides (Google Slides, Canva, etc.).', code: 'Paste your GitHub or code link.',
+      image: 'Choose the photo you want to share.', audio: 'Paste a link to your audio (SoundCloud, Drive, etc.).'
+    };
+
+    Object.keys(TYPES).forEach(function (k) { var o = document.createElement('option'); o.value = k; o.textContent = TYPES[k]; sel.appendChild(o); });
+
+    function types() {
+      var used = {}; D.projects.forEach(function (p) { used[p.type] = (used[p.type] || 0) + 1; });
+      var h = '<button data-t="all" class="' + (filter === 'all' ? 'on' : '') + '">All (' + D.projects.length + ')</button>';
+      Object.keys(used).forEach(function (k) { h += '<button data-t="' + k + '" class="' + (filter === k ? 'on' : '') + '">' + esc(TYPES[k]) + ' (' + used[k] + ')</button>'; });
+      $('#type-filter').innerHTML = h;
+    }
+    function render() {
+      types();
+      var s = q.toLowerCase();
+      var ps = newestFirst(D.projects).filter(function (p) {
+        return (filter === 'all' || p.type === filter) && (!s || (p.title + ' ' + p.desc + ' ' + (p.tags || []).join(' ')).toLowerCase().indexOf(s) > -1);
+      });
+      $('#posts').innerHTML = ps.length ? ps.map(function (p) { return card(p, true); }).join('')
+        : '<div class="empty" style="grid-column:1/-1">' + (D.projects.length ? 'No posts match your search.' : 'No posts yet. Click "+ New post" to share your first project.') + '</div>';
+    }
+    function sync() {
+      var n = NEED[sel.value];
+      el(f, 'link').required = n === 'link'; el(f, 'img').required = n === 'img';
+      $('#lb-link').firstChild.nodeValue = n === 'link' ? 'Link *' : 'Link (optional)';
+      $('#lb-img').firstChild.nodeValue = n === 'img' ? 'Image *' : 'Cover image (optional)';
+      $('#post-hint').textContent = HINT[sel.value] || 'Add a link or a cover image if you have one.';
+    }
+    sel.addEventListener('change', sync);
+    $('#new-post').addEventListener('click', function () { f.reset(); el(f, 'date').value = today(); $('#post-err').textContent = ''; sync(); open(dlg); });
+
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!f.checkValidity()) { f.reportValidity(); return; }
+      var link = el(f, 'link').value.trim(), url = safeUrl(link);
+      if (link && !url) { $('#post-err').textContent = 'Please enter a valid link starting with http:// or https://'; return; }
+      var post = {
+        id: uid(), created: Date.now(), type: sel.value, title: el(f, 'title').value.trim(), desc: el(f, 'desc').value.trim(),
+        link: url, tags: list(el(f, 'tags').value).slice(0, 6), date: el(f, 'date').value || today(), img: ''
+      };
+      function finish() {
+        D.projects.push(post); addEvent('Posted a project: ' + post.title); save(); close(dlg); render(); toast('Post published');
+      }
+      var file = el(f, 'img').files[0];
+      if (file) pic(file, 900, 560, function (u) { post.img = u; finish(); }); else finish();
+    });
+
+    $('#type-filter').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { filter = b.getAttribute('data-t'); render(); } });
+    $('#search').addEventListener('input', function () { q = this.value.trim(); render(); });
+    $('#posts').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-act]'); if (!b) return;
+      if (b.getAttribute('data-act') === 'more') b.closest('.post').classList.toggle('open');
+      else if (b.getAttribute('data-act') === 'del-post' && confirm('Delete this post?')) {
+        D.projects = D.projects.filter(function (p) { return p.id !== b.getAttribute('data-id'); }); save(); render();
+      }
+    });
+    render();
+  }
+
+  if (document.body.getAttribute('data-page') === 'dashboard') dashboard(); else projects();
+})();

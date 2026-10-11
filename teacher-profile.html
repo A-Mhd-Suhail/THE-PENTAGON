@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Profile | The Hexagon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="teacher-profile.css" />
+</head>
+<body>
+
+  <!-- ============ TOP NAV ============ -->
+  <header class="topnav">
+    <div class="topnav__inner">
+      <a href="#" class="brand">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#cfdbea" stroke-width="1.6"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><circle cx="12" cy="12" r="2.4" fill="#cfdbea"/></svg>
+        <span>THE HEXAGON</span>
+      </a>
+      <nav class="topnav__links">
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">My classes</a>
+        <a href="#">Network</a>
+        <a href="#">Messages</a>
+      </nav>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 8a6 6 0 1112 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 004 0"/></svg>
+      </button>
+      <div class="nav-avatar">RK</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ============ PROFILE HEADER ============ -->
+    <section class="profile-card">
+      <div class="cover">
+        <svg class="cover__art" viewBox="0 0 1440 240" preserveAspectRatio="none" fill="none">
+          <polyline points="0,200 260,110 520,180 810,75 1090,160 1350,95 1440,130" stroke="#4d6585" stroke-width="1.3"/>
+          <line x1="260" y1="110" x2="430" y2="240" stroke="#4d6585" stroke-width="1.3"/>
+          <line x1="810" y1="75" x2="930" y2="240" stroke="#4d6585" stroke-width="1.3"/>
+          <line x1="1090" y1="160" x2="1200" y2="240" stroke="#4d6585" stroke-width="1.3"/>
+          <circle cx="260" cy="110" r="6" fill="#8fa9c8"/>
+          <circle cx="810" cy="75" r="6" fill="#8fa9c8"/>
+          <circle cx="1350" cy="95" r="6" fill="#8fa9c8"/>
+        </svg>
+        <button class="btn btn--dark cover__edit" id="editCoverBtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          Edit cover
+        </button>
+      </div>
+
+      <div class="profile-head">
+        <div class="avatar-lg">RK</div>
+
+        <div class="profile-head__info">
+          <div class="profile-head__top">
+            <div>
+              <h1 class="name">Dr. Iswarya</h1>
+              <span class="verified-pill">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
+                Government teacher · Verified
+              </span>
+            </div>
+            <div class="head-actions">
+              <button class="btn btn--ghost" id="editProfileBtn">Edit profile</button>
+              <button class="btn btn--ghost" id="createPostBtn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>
+                Create post
+              </button>
+            </div>
+          </div>
+
+          <p class="headline">Senior Science teacher · 18 years of experience</p>
+          <p class="subline">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+            M.Sc. Physics, B.Ed. · Government Higher Secondary School
+          </p>
+
+          <div class="id-chip">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 5.5-1.5 6 0M14 10h4M14 14h4"/></svg>
+            <span>Profile ID</span>
+            <strong id="profileIdText">TCH-26-001208</strong>
+            <button id="copyIdBtn" aria-label="Copy profile ID" class="copy-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ STATS ============ -->
+      <div class="stats">
+        <div class="stat">
+          <span class="stat__label">Shippers</span>
+          <span class="stat__value">1,284</span>
+          <span class="stat__note">312 shipping · +86 this week</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Profile views</span>
+          <span class="stat__value">5,420</span>
+          <span class="stat__note">+12% this week</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Post impressions</span>
+          <span class="stat__value">48.2k</span>
+          <span class="stat__note">+9% this week</span>
+        </div>
+        <div class="stat stat--air">
+          <svg class="ring" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" class="ring__bg"/>
+            <circle cx="40" cy="40" r="32" class="ring__fg" id="airRing"/>
+          </svg>
+          <div>
+            <span class="stat__label">AIR score</span>
+            <span class="stat__value" id="airValue">812</span>
+            <span class="stat__note">Gold tier</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TABS ============ -->
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="posts" role="tab">Posts</button>
+        <button class="tab" data-tab="about" role="tab">About</button>
+        <button class="tab" data-tab="portfolio" role="tab">Portfolio</button>
+        <button class="tab" data-tab="resources" role="tab">Resources</button>
+        <button class="tab" data-tab="endorsements" role="tab">Endorsements</button>
+      </div>
+    </section>
+
+    <!-- ============ TAB: POSTS ============ -->
+    <section class="tab-panel active" id="tab-posts">
+      <div class="grid-2">
+        <div class="col">
+          <article class="card">
+            <h2 class="card__title">Education biography</h2>
+            <p class="body-text">Physics and science educator with 18 years of experience in government schools. M.Sc. in Physics and B.Ed., with a focus on practical, low-cost science teaching and mentoring students for state-level science fairs.</p>
+          </article>
+
+          <article class="card composer">
+            <div class="composer__row">
+              <div class="avatar-sm">RK</div>
+              <button class="composer__input" id="startPostBtn">Start a post</button>
+            </div>
+            <div class="composer__actions">
+              <button class="link-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg>Photo</button>
+              <button class="link-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>Video</button>
+              <button class="link-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Document</button>
+              <button class="link-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4h8v5a4 4 0 01-8 0zM8 6H4v1a3 3 0 003 3M16 6h4v1a3 3 0 01-3 3M12 13v4M8 20h8"/></svg>Achievement</button>
+              <button class="link-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Write article</button>
+            </div>
+          </article>
+
+          <div class="filters" id="postFilters">
+            <button class="chip active" data-filter="all">All posts</button>
+            <button class="chip" data-filter="image">Images</button>
+            <button class="chip" data-filter="video">Videos</button>
+            <button class="chip" data-filter="article">Articles</button>
+            <button class="chip" data-filter="draft">Drafts 3</button>
+          </div>
+
+          <!-- Post 1 : images -->
+          <article class="card post" data-type="image">
+            <header class="post__head">
+              <div class="avatar-sm">RK</div>
+              <div class="post__who">
+                <strong>Dr. Ramesh Kumar
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
+                </strong>
+                <span>Senior Science teacher · 2h · 🌐</span>
+              </div>
+              <button class="more-btn" aria-label="More">•••</button>
+            </header>
+            <p class="post__text">Proud moment: my student Divya won first place at the state science fair with a low-cost water purifier she designed and built herself.</p>
+            <div class="media-grid">
+              <div class="media-grid__big"><svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#4d6585" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg></div>
+              <div class="media-grid__side">
+                <div class="media-grid__a"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#2a3d57" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg></div>
+                <div class="media-grid__b">+3</div>
+              </div>
+            </div>
+            <p class="post__counts">248 reactions · 36 comments · 12 reposts</p>
+            <div class="analytics-bar"><span>📊 12.8k impressions · 9 interested</span><button class="link-strong">View analytics</button></div>
+            <footer class="post__actions">
+              <button class="like-btn">👍 Like</button><button>💬 Comment</button><button>↪ Share</button><button>💡 Interested</button>
+            </footer>
+          </article>
+
+          <!-- Post 2 : video -->
+          <article class="card post" data-type="video">
+            <header class="post__head">
+              <div class="avatar-sm">RK</div>
+              <div class="post__who">
+                <strong>Dr. Ramesh Kumar
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
+                </strong>
+                <span>Senior Science teacher · 3d · 🌐</span>
+              </div>
+              <button class="more-btn" aria-label="More">•••</button>
+            </header>
+            <p class="post__text">Teaching resource: a 3-minute demonstration of refraction using only a glass of water and a coin. Free to use in your class.</p>
+            <div class="video-box">
+              <div class="video-box__play"></div>
+              <span class="video-box__time">2:48</span>
+              <div class="video-box__bar"></div>
+            </div>
+            <p class="post__counts">412 reactions · 58 comments · 31 reposts · 9.6k views</p>
+            <div class="analytics-bar"><span>📊 8.1k impressions · 27 interested</span><button class="link-strong">View analytics</button></div>
+            <footer class="post__actions">
+              <button class="like-btn">👍 Like</button><button>💬 Comment</button><button>↪ Share</button><button>💡 Interested</button>
+            </footer>
+          </article>
+        </div>
+
+        <aside class="col">
+          <article class="card">
+            <div class="card__row"><h2 class="card__title">Profile views</h2><span class="muted">Last 30 days</span></div>
+            <div class="bars" id="viewsBars"></div>
+            <p class="viewed-by">Viewed by 5,420 people</p>
+            <div class="split-bar"><span style="width:57.5%"></span><span style="width:34.5%"></span><span style="width:8%"></span></div>
+            <ul class="kv">
+              <li><span>Teachers</span><strong>3,120</strong></li>
+              <li><span>Students</span><strong>1,860</strong></li>
+              <li><span>Others</span><strong>440</strong></li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h2 class="card__title">AIR score drivers</h2>
+            <div class="driver"><span>Profile views</span><div class="track"><i style="width:72%"></i></div></div>
+            <div class="driver"><span>Post impressions</span><div class="track"><i style="width:85%"></i></div></div>
+            <div class="driver"><span>Performance</span><div class="track"><i style="width:78%;background:#273a56"></i></div></div>
+            <p class="muted">Based on profile views, post impressions and performance.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__row"><h2 class="card__title">Profile strength</h2><strong>86%</strong></div>
+            <div class="track track--lg"><i style="width:86%"></i></div>
+            <p class="muted">Add a resource to reach 100%.</p>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ TAB: ABOUT ============ -->
+    <section class="tab-panel" id="tab-about">
+      <div class="grid-2">
+        <div class="col">
+          <article class="card">
+            <div class="card__row"><h2 class="card__title">Education biography</h2><button class="link-btn">✎ Edit</button></div>
+            <p class="body-text">Physics and science educator with 18 years of experience in government schools. M.Sc. in Physics and B.Ed., with a focus on practical, low-cost science teaching and mentoring students for state-level science fairs. Believes every classroom can run real experiments.</p>
+          </article>
+
+          <article class="card">
+            <h2 class="card__title">Experience</h2>
+            <ul class="timeline">
+              <li><i class="dot dot--dark"></i><div><strong>Senior Science teacher</strong><span>Government Higher Secondary School · 2014 to present</span></div></li>
+              <li><i class="dot"></i><div><strong>Science teacher</strong><span>Government High School · 2008 to 2014</span></div></li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h2 class="card__title">Education</h2>
+            <div class="edu"><div><strong>B.Ed.</strong><span>State University</span></div><em>2008</em></div>
+            <div class="edu"><div><strong>M.Sc. Physics</strong><span>State University</span></div><em>2006</em></div>
+          </article>
+        </div>
+
+        <aside class="col">
+          <article class="card">
+            <h2 class="card__title">Teaching details</h2>
+            <p class="label">Subjects</p>
+            <div class="pills"><span>Physics</span><span>General science</span></div>
+            <p class="label">Grades</p>
+            <p class="plain">Grades 8 to 12</p>
+            <p class="label">Languages</p>
+            <div class="pills"><span>English</span><span>Tamil</span><span>Hindi</span></div>
+          </article>
+          <article class="card">
+            <h2 class="card__title">Teaching philosophy</h2>
+            <blockquote class="quote">"Every student can learn science when they are allowed to test it themselves."</blockquote>
+          </article>
+          <article class="card">
+            <h2 class="card__title">Open to</h2>
+            <div class="pills"><span>Mentoring</span><span>Collaboration</span><span>Speaking</span><span>Workshops</span></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ TAB: PORTFOLIO ============ -->
+    <section class="tab-panel" id="tab-portfolio">
+      <div class="toolbar">
+        <div class="filters" id="portfolioFilters">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="publication">Publications</button>
+          <button class="chip" data-filter="workshop">Workshops</button>
+          <button class="chip" data-filter="curriculum">Curriculum</button>
+          <button class="chip" data-filter="award">Awards</button>
+        </div>
+        <button class="btn btn--ghost">+ Add item</button>
+      </div>
+      <div class="portfolio-grid">
+        <article class="pcard" data-type="publication">
+          <div class="pcard__top c1"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#2a3d57" stroke-width="1.5"><path d="M5 3h11l3 3v15H5z"/><path d="M8 8h7M8 12h7"/><circle cx="14" cy="17" r="2.2"/></svg></div>
+          <div class="pcard__body"><span class="tag">Publication</span><h3>Low-cost physics labs</h3><p class="sub">Journal of Science Education · 2025</p><p>Experiments for classrooms with limited equipment.</p></div>
+        </article>
+        <article class="pcard" data-type="workshop">
+          <div class="pcard__top c2"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#2a3d57" stroke-width="1.5"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M12 16v4M8 20h8M7 12l3-3 3 2 3-4"/></svg></div>
+          <div class="pcard__body"><span class="tag">Workshop</span><h3>Science labs for teachers</h3><p class="sub">120 teachers · 2026</p><p>A full-day hands-on workshop for district teachers.</p></div>
+        </article>
+        <article class="pcard" data-type="curriculum">
+          <div class="pcard__top c3"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="1.5"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16 6l4 1-3 13-4-1z"/></svg></div>
+          <div class="pcard__body"><span class="tag">Curriculum</span><h3>Grade 10 physics unit</h3><p class="sub">Designed 2024</p><p>Twelve lessons built around practical activities.</p></div>
+        </article>
+        <article class="pcard" data-type="award">
+          <div class="pcard__top c4"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="1.5"><path d="M8 4h8v5a4 4 0 01-8 0zM8 6H4v1a3 3 0 003 3M16 6h4v1a3 3 0 01-3 3M12 13v4M8 20h8"/></svg></div>
+          <div class="pcard__body"><span class="tag">Award</span><h3>State teaching award</h3><p class="sub">Shortlisted · 2026</p><p>Recognised for innovation in science teaching.</p></div>
+        </article>
+        <button class="pcard pcard--add"><span>+</span>Add a publication, workshop, project or award</button>
+      </div>
+    </section>
+
+    <!-- ============ TAB: RESOURCES ============ -->
+    <section class="tab-panel" id="tab-resources">
+      <div class="toolbar">
+        <div class="filters" id="resourceFilters">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="lesson">Lesson plans</button>
+          <button class="chip" data-filter="worksheet">Worksheets</button>
+          <button class="chip" data-filter="video">Videos</button>
+          <button class="chip" data-filter="presentation">Presentations</button>
+          <button class="chip" data-filter="qbank">Question banks</button>
+        </div>
+        <button class="btn btn--ghost">Upload resource</button>
+      </div>
+      <div class="card list">
+        <div class="res" data-type="lesson">
+          <div class="res__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h7M9 17h7"/></svg></div>
+          <div class="res__info"><strong>Refraction lesson plan</strong><span>Lesson plan · Physics · Grade 10</span></div>
+          <div class="res__count">1,240 downloads</div><button class="link-btn">Download</button>
+        </div>
+        <div class="res" data-type="worksheet">
+          <div class="res__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h4"/></svg></div>
+          <div class="res__info"><strong>Motion and force worksheet set</strong><span>Worksheets · Physics · Grade 9</span></div>
+          <div class="res__count">860 downloads</div><button class="link-btn">Download</button>
+        </div>
+        <div class="res" data-type="video">
+          <div class="res__icon res__icon--dark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.6"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></div>
+          <div class="res__info"><strong>Optics with a glass of water</strong><span>Video · 2:48 · Physics · Grade 10</span></div>
+          <div class="res__count">9.6k views</div><button class="link-btn">Watch</button>
+        </div>
+        <div class="res" data-type="presentation">
+          <div class="res__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M12 16v4M8 20h8"/></svg></div>
+          <div class="res__info"><strong>Energy transformations slides</strong><span>Presentation · General science · Grade 8</span></div>
+          <div class="res__count">540 downloads</div><button class="link-btn">Download</button>
+        </div>
+      </div>
+      <p class="muted foot">Resources are free for verified teachers to download and use in their classrooms.</p>
+    </section>
+
+    <!-- ============ TAB: ENDORSEMENTS ============ -->
+    <section class="tab-panel" id="tab-endorsements">
+      <div class="grid-2">
+        <div class="col">
+          <article class="card">
+            <div class="card__row"><h2 class="card__title">Skills and endorsements</h2><button class="link-btn">Request endorsement</button></div>
+            <div class="skill"><div class="card__row"><strong>Physics</strong><span class="muted">64 endorsements</span></div><div class="track track--lg"><i style="width:92%"></i></div>
+              <div class="endorsers"><span class="mini">SK</span><span class="mini mini--b">AN</span><span class="mini mini--c">LD</span><em>Endorsed by 3 teachers you know</em></div></div>
+            <div class="skill"><div class="card__row"><strong>Experiment design</strong><span class="muted">41</span></div><div class="track track--lg"><i style="width:62%"></i></div></div>
+            <div class="skill"><div class="card__row"><strong>Student mentoring</strong><span class="muted">37</span></div><div class="track track--lg"><i style="width:55%"></i></div></div>
+            <div class="skill"><div class="card__row"><strong>Curriculum design</strong><span class="muted">22</span></div><div class="track track--lg"><i style="width:34%"></i></div></div>
+          </article>
+        </div>
+        <aside class="col">
+          <article class="card">
+            <h2 class="card__title">Recommendations</h2>
+            <blockquote class="quote">"Ramesh makes physics click for every student. His low-cost experiments are now used across our district."</blockquote>
+            <div class="rec"><span class="avatar-sm">SN</span><div><strong>Savitha Nair ✔</strong><span>Headmistress, Government school</span></div></div>
+            <hr />
+            <blockquote class="quote">"A generous mentor who shares every resource he builds."</blockquote>
+            <div class="rec"><span class="avatar-sm avatar-sm--b">JT</span><div><strong>John Thomas ✔</strong><span>Chemistry teacher, Private school</span></div></div>
+          </article>
+          <article class="card">
+            <h2 class="card__title">Endorsed by</h2>
+            <ul class="kv"><li><span>Teachers</span><strong>118</strong></li><li><span>School leaders</span><strong>14</strong></li><li><span>Students</span><strong>32</strong></li></ul>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="teacher-profile.js"></script>
+</body>
+</html>
